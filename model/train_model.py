@@ -34,6 +34,11 @@ def split_datasets(df, log_ind=False):
 
 
 def evaluate_grid(grid_result):
+    """
+    Takes as input grid results from cross validation and prints relevant scores
+    :param grid_result: GridSearchCV that has been fitted to data
+    :return: None
+    """
     print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
@@ -43,7 +48,7 @@ def evaluate_grid(grid_result):
 
 
 def train_model(model='XGB'):
-    df = generate_train_data()
+    df = generate_data(train=True)
     X_train_scaled, y_train_scaled, X_test_scaled, y_test_scaled, scalerX, scalery, X_test, y_test, X_train, y_train = split_datasets(df)
 
     if model == 'NN':
