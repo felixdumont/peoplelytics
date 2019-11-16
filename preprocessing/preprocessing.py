@@ -1,16 +1,5 @@
 import pandas as pd
-
-def load_drivers():
-    pass
-
-def load_trucks():
-    pass
-
-def load_route_types():
-    pass
-
-def load_route_data():
-    pass
+from load_data import load_drivers, load_route_data, load_route_types, load_trucks
 
 def generate_train_data():
     drivers = load_drivers()
