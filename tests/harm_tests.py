@@ -1,6 +1,6 @@
 import pandas as pd
 
-from model.harm import get_route_harm
+from preprocessing.harm import get_route_harm
 
 #TODO Formalize as unit tests
 
