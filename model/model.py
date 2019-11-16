@@ -11,6 +11,6 @@ def nn_model(num_neurons, input_dim):
     model.compile(loss='mean_squared_error', optimizer='adam')
     return model
 
-def xgb_model(num_trees, input_dim):
+def xgb_model():
     xgb_model = xgb.XGBRegressor()
     return xgb_model

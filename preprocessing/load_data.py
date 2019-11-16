@@ -2,7 +2,8 @@ import pandas as pd
 
 
 def load_drivers():
-    pass
+    df = pd.read_csv('data/drivers.csv')
+    return df
 
 def load_trucks():
     pass
