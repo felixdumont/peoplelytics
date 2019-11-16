@@ -2,7 +2,6 @@ import pandas as pd
 from keras.models import Sequential
 from keras.layers import Dense
 
-
 def nn_model(num_neurons, input_dim):
     model = Sequential()
     model.add(Dense(num_neurons, input_dim=input_dim, kernel_initializer='normal', activation='relu'))
