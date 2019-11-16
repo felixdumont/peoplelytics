@@ -6,7 +6,8 @@ def load_drivers():
     return df
 
 def load_trucks():
-    pass
+    df = pd.read_csv('data/trucks.csv')
+    return df
 
 def load_route_types():
     pass
@@ -16,4 +17,7 @@ def load_route_data():
     return df
 
 def load_incident_weights():
+    pass
+
+def load_future_routes():
     pass

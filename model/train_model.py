@@ -6,6 +6,7 @@ from sklearn.model_selection import cross_val_score, cross_validate
 from sklearn.model_selection import KFold
 from sklearn.pipeline import Pipeline
 import numpy as np
+import pickle
 
 import settings
 from preprocessing.preprocessing import generate_train_data
@@ -68,5 +69,5 @@ def train_model(model='XGB'):
     return grid, X_train_scaled, y_train_scaled, X_test_scaled, scalery, X_test, y_test, X_train, y_train
 
 
-def save_model():
-    pass
+def save_model(model, model_name = 'model.sav'):
+    pickle.dump(model, open(model_name, 'wb'))

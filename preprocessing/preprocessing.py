@@ -12,7 +12,7 @@ def generate_train_data():
 
     full_df=route_data
     full_df = pd.merge(route_data, drivers, how='inner', on='driver_id')
-    #full_df = pd.merge(full_df, trucks, how='inner', on='truck_id')
+    full_df = pd.merge(full_df, trucks, how='inner', on='truck_id')
     #full_df = pd.merge(route_data, route_types, how='inner', on='route_id')
 
     # Generate incidents
