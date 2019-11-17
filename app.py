@@ -1,8 +1,6 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import pandas as pd
-import numpy as np
 import matplotlib
 import matplotlib.cm as cm
 
@@ -34,28 +32,6 @@ list_of_locations = {
 }
 
 
-data = [["2014-04-01 00:11:00",40.769,-73.9549]
-,["2014-04-01 00:17:00",40.7267,-74.0345]
-,["2014-04-01 00:21:00",40.7316,-73.9873]
-,["2014-04-01 00:28:00",40.7588,-73.9776]
-,["2014-04-01 00:33:00",40.7594,-73.9722]
-,["2014-05-02 00:33:00", 40.7594, -73.9722]]
-
-df = pd.read_csv('temp_df.csv')
-df["Date/Time"] = pd.to_datetime(df["Date/Time"])
-df.index = df["Date/Time"]
-df.drop("Date/Time", 1, inplace=True)
-totalList = []
-
-for month in df.groupby(df.index.month):
-    dailyList = []
-    for day in month[1].groupby(month[1].index.day):
-        dailyList.append(day[1])
-    totalList.append(dailyList)
-
-totalList = np.array(totalList)
-
-
 # Layout of Dash App
 app.layout = html.Div(
     children=[
@@ -68,8 +44,7 @@ app.layout = html.Div(
                     children=[
                         html.H2("BSAFE - MANAGEMENT APP"),
                         html.P(
-                            """Select different days using the date picker or by selecting 
-                            different time frames on the histogram."""
+                            """Daily route visualization"""
                         ),
                         html.Div(
                             className="div-for-dropdown",
@@ -81,7 +56,7 @@ app.layout = html.Div(
                                     initial_visible_month=dt(2014, 4, 1),
                                     date=dt(2014, 4, 1).date(),
                                     display_format="MMMM D, YYYY",
-                                    style={"border": "0px solid black"},
+                                    style={"border": "0px solid black", 'display': 'none'},
                                 )
                             ],
                         ),
@@ -99,14 +74,13 @@ app.layout = html.Div(
                                                 {"label": i, "value": i}
                                                 for i in list_of_locations
                                             ],
-                                            placeholder="Select a location",
+                                            placeholder="Driver location",
                                         )
                                     ],
                                 ),
                                 html.Div(
                                     className="div-for-dropdown",
                                     children=[
-                                        # Dropdown to select times
                                         dcc.Dropdown(
                                             id="bar-selector",
                                             options=[
@@ -117,7 +91,7 @@ app.layout = html.Div(
                                                 for n in range(24)
                                             ],
                                             multi=True,
-                                            placeholder="Select certain hours",
+                                            placeholder="Time of day",
                                         )
                                     ],
                                 ),
@@ -143,59 +117,6 @@ app.layout = html.Div(
     ]
 )
 
-# Gets the amount of days in the specified month
-# Index represents month (0 is April, 1 is May, ... etc.)
-daysInMonth = [30, 31, 30, 31, 31, 30]
-
-# Get index for the specified month in the dataframe
-monthIndex = pd.Index(["Apr", "May", "June", "July", "Aug", "Sept"])
-
-# Get the amount of rides per hour based on the time selected
-# This also higlights the color of the histogram bars based on
-# if the hours are selected
-def get_selection(month, day, selection):
-    xVal = []
-    yVal = []
-    xSelected = []
-    colorVal = [
-        "#F4EC15",
-        "#DAF017",
-        "#BBEC19",
-        "#9DE81B",
-        "#80E41D",
-        "#66E01F",
-        "#4CDC20",
-        "#34D822",
-        "#24D249",
-        "#25D042",
-        "#26CC58",
-        "#28C86D",
-        "#29C481",
-        "#2AC093",
-        "#2BBCA4",
-        "#2BB5B8",
-        "#2C99B4",
-        "#2D7EB0",
-        "#2D65AC",
-        "#2E4EA4",
-        "#2E38A4",
-        "#3B2FA0",
-        "#4E2F9C",
-        "#603099",
-    ]
-
-    # Put selected times into a list of numbers xSelected
-    xSelected.extend([int(x) for x in selection])
-
-    for i in range(24):
-        # If bar is selected then color it white
-        if i in xSelected and len(xSelected) < 24:
-            colorVal[i] = "#FFFFFF"
-        xVal.append(i)
-        # Get the number of rides at a particular time
-        yVal.append(len(totalList[month][day][totalList[month][day].index.hour == i]))
-    return [np.array(xVal), np.array(yVal), np.array(colorVal)]
-
 
 # Selected Data in the Histogram updates the Values in the DatePicker
 @app.callback(
@@ -219,61 +140,6 @@ def update_selected_data(clickData):
         return {"points": []}
 
 
-# Update the total number of rides Tag
-@app.callback(Output("total-rides", "children"), [Input("date-picker", "date")])
-def update_total_rides(datePicked):
-    date_picked = dt.strptime(datePicked, "%Y-%m-%d")
-    return "Total Number of rides: {:,d}".format(
-        len(totalList[date_picked.month - 4][date_picked.day - 1])
-    )
-
-
-# Update the total number of rides in selected times
-@app.callback(
-    [Output("total-rides-selection", "children"), Output("date-value", "children")],
-    [Input("date-picker", "date"), Input("bar-selector", "value")],
-)
-def update_total_rides_selection(datePicked, selection):
-    firstOutput = ""
-
-    if selection is not None or len(selection) is not 0:
-        date_picked = dt.strptime(datePicked, "%Y-%m-%d")
-        totalInSelection = 0
-        for x in selection:
-            totalInSelection += len(
-                totalList[date_picked.month - 4][date_picked.day - 1][
-                    totalList[date_picked.month - 4][date_picked.day - 1].index.hour
-                    == int(x)
-                ]
-            )
-        firstOutput = "Total rides in selection: {:,d}".format(totalInSelection)
-
-    if (
-        datePicked is None
-        or selection is None
-        or len(selection) is 24
-        or len(selection) is 0
-    ):
-        return firstOutput, (datePicked, " - showing hour(s): All")
-
-    holder = sorted([int(x) for x in selection])
-
-    if holder == list(range(min(holder), max(holder) + 1)):
-        return (
-            firstOutput,
-            (
-                datePicked,
-                " - showing hour(s): ",
-                holder[0],
-                "-",
-                holder[len(holder) - 1],
-            ),
-        )
-
-    holder_to_string = ", ".join(str(x) for x in holder)
-    return firstOutput, (datePicked, " - showing hour(s): ", holder_to_string)
-
-
 # Update Histogram Figure based on Month, Day and Times Chosen
 @app.callback(
     Output("histogram", "figure"),
@@ -282,11 +148,6 @@ def update_total_rides_selection(datePicked, selection):
 def update_histogram(datePicked, selection, n_clicks):
     if n_clicks is None:
         return {}
-    date_picked = dt.strptime(datePicked, "%Y-%m-%d")
-    monthPicked = date_picked.month - 4
-    dayPicked = date_picked.day - 1
-
-    [xVal, yVal, colorVal] = get_selection(monthPicked, dayPicked, selection)
 
     model = load_model()
     df_predict = predict(model, sms=True)
@@ -326,45 +187,16 @@ def update_histogram(datePicked, selection, n_clicks):
             rangemode="nonnegative",
             zeroline=False,
         ),
-        annotations=[
-            dict(
-                x=xi,
-                y=yi,
-                text=str(yi),
-                xanchor="center",
-                yanchor="bottom",
-                showarrow=False,
-                font=dict(color="white"),
-            )
-            for xi, yi in zip(xVal, yVal)
-        ],
     )
 
     return go.Figure(
         data=[
             go.Bar(x=df_predict['driver_id'], y=df_predict['predictions'], marker=dict(color=colors),
                      hovertext=df_predict['priority']
-    #               , hoverinfo="y"
     ),
         ],
         layout=layout,
     )
-
-
-# Get the Coordinates of the chosen months, dates and times
-def getLatLonColor(selectedData, month, day):
-    listCoords = totalList[month][day]
-
-    # No times selected, output all times for chosen month and date
-    if selectedData is None or len(selectedData) is 0:
-        return listCoords
-    listStr = "listCoords["
-    for time in selectedData:
-        if selectedData.index(time) is not len(selectedData) - 1:
-            listStr += "(totalList[month][day].index.hour==" + str(int(time)) + ") | "
-        else:
-            listStr += "(totalList[month][day].index.hour==" + str(int(time)) + ")]"
-    return eval(listStr)
 
 
 # Update Map Graph based on date-picker, selected data on histogram and location dropdown
@@ -381,19 +213,14 @@ def update_graph(datePicked, selectedData, selectedLocation, n_clicks):
     if n_clicks is None:
         return {}
     zoom = 13.0
-    latInitial = 42.3601 #40.7272
-    lonInitial = -71.0942 #-73.991251
+    latInitial = 42.3601
+    lonInitial = -71.0942
     bearing = 0
 
     if selectedLocation:
         zoom = 15.0
         latInitial = list_of_locations[selectedLocation]["lat"]
         lonInitial = list_of_locations[selectedLocation]["lon"]
-
-    date_picked = dt.strptime(datePicked, "%Y-%m-%d")
-    monthPicked = date_picked.month - 4
-    dayPicked = date_picked.day - 1
-    listCoords = getLatLonColor(selectedData, monthPicked, dayPicked)
 
     model = load_model()
     df_predict = predict(model)
@@ -411,39 +238,6 @@ def update_graph(datePicked, selectedData, selectedLocation, n_clicks):
 
     return go.Figure(
         data=[
-            # Data for all rides based on date and time
-            Scattermapbox(
-                lat=listCoords["Lat"],
-                lon=listCoords["Lon"],
-                mode="markers",
-                hoverinfo="lat+lon+text",
-                text=listCoords.index.hour,
-                marker=dict(
-                    showscale=True,
-                    color=np.append(np.insert(listCoords.index.hour, 0, 0), 23),
-                    opacity=0.5,
-                    size=5,
-                    colorscale=[
-                        [0, "#F4EC15"],
-                        [0.04167, "#DAF017"],
-                        [0.0833, "#BBEC19"],
-                        [0.125, "#9DE81B"],
-                        [0.1667, "#80E41D"],
-                        [0.2083, "#66E01F"],
-                        [0.25, "#4CDC20"],
-                        [0.292, "#34D822"],
-                        [0.333, "#24D249"],
-                        [0.375, "#25D042"],
-                        [0.4167, "#26CC58"],
-                        [0.4583, "#28C86D"],
-                        [0.50, "#29C481"],
-                        [0.54167, "#2AC093"],
-                        [0.5833, "#2BBCA4"],
-                        [1.0, "#613099"],
-                    ],
-                ),
-            ),
-            # Plot of important locations on the map
 
             Scattermapbox(
                 lat=[list_of_locations[i]["lat"] for i in list_of_locations],
@@ -462,7 +256,7 @@ def update_graph(datePicked, selectedData, selectedLocation, n_clicks):
             showlegend=False,
             mapbox=dict(
                 accesstoken=mapbox_access_token,
-                center=dict(lat=latInitial, lon=lonInitial),  # 40.7272  # -73.991251
+                center=dict(lat=latInitial, lon=lonInitial),
                 style="dark",
                 bearing=bearing,
                 zoom=zoom,

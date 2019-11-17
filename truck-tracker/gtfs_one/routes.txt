@@ -1,2 +1,0 @@
-route_type,route_id,route_short_name,route_long_name,agency_id,route_color,route_text_color
-3,0,Teal,MIT-2-BU,1,00C1DE,FFFFFF
