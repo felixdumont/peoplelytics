@@ -18,7 +18,7 @@ app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}]
 )
 server = app.server
-app.config.suppress_callback_exceptions=True
+app.config['suppress_callback_exceptions'] = True
 
 # Plotly mapbox public token
 mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNqdnBvNDMyaTAxYzkzeW5ubWdpZ2VjbmMifQ.TXcBE-xg9BFdV2ocecc_7g"
@@ -33,20 +33,6 @@ list_of_locations = {
     "Faneuil Hall": {"lat": 42.3603, "lon": -71.0547}
 }
 
-# Initialize data frame
-#df = pd.read_csv(
-#    "https://raw.githubusercontent.com/plotly/datasets/master/uber-rides-data1.csv",
-#    dtype=object,
-#)
-#df2 = pd.read_csv(
-#    "https://raw.githubusercontent.com/plotly/datasets/master/uber-rides-data2.csv",
-#    dtype=object,
-#)
-#df3 = pd.read_csv(
-#    "https://raw.githubusercontent.com/plotly/datasets/master/uber-rides-data3.csv",
-#    dtype=object,
-#)
-#df = pd.concat([df1, df2, df3], axis=0)
 
 data = [["2014-04-01 00:11:00",40.769,-73.9549]
 ,["2014-04-01 00:17:00",40.7267,-74.0345]
@@ -54,7 +40,6 @@ data = [["2014-04-01 00:11:00",40.769,-73.9549]
 ,["2014-04-01 00:28:00",40.7588,-73.9776]
 ,["2014-04-01 00:33:00",40.7594,-73.9722]
 ,["2014-05-02 00:33:00", 40.7594, -73.9722]]
-#df = pd.DataFrame(data=data, columns=["Date/Time","Lat","Lon"])
 
 df = pd.read_csv('temp_df.csv')
 df["Date/Time"] = pd.to_datetime(df["Date/Time"])
@@ -81,7 +66,7 @@ app.layout = html.Div(
                 html.Div(
                     className="four columns div-user-controls",
                     children=[
-                        html.H2("BSAFE - DISPATCHER APP"),
+                        html.H2("BSAFE - MANAGEMENT APP"),
                         html.P(
                             """Select different days using the date picker or by selecting 
                             different time frames on the histogram."""
@@ -136,6 +121,11 @@ app.layout = html.Div(
                                         )
                                     ],
                                 ),
+
+                                html.H2('Risk score by driver'),
+                                dcc.Graph(id="histogram"),
+                                html.Br(style={"color":"white"}),
+                                html.Button('Launch', id='button'),
                             ],
                         ),
                     ],
@@ -145,13 +135,7 @@ app.layout = html.Div(
                     className="eight columns div-for-charts bg-grey",
                     children=[
                         dcc.Graph(id="map-graph"),
-                        html.Div(
-                            className="text-padding",
-                            children=[
-                                "Select any of the bars on the histogram to section data by time."
-                            ],
-                        ),
-                        dcc.Graph(id="histogram"),
+
                     ],
                 ),
             ],
@@ -293,9 +277,11 @@ def update_total_rides_selection(datePicked, selection):
 # Update Histogram Figure based on Month, Day and Times Chosen
 @app.callback(
     Output("histogram", "figure"),
-    [Input("date-picker", "date"), Input("bar-selector", "value")],
+    [Input("date-picker", "date"), Input("bar-selector", "value"), Input("button", "n_clicks")],
 )
-def update_histogram(datePicked, selection):
+def update_histogram(datePicked, selection, n_clicks):
+    if n_clicks is None:
+        return {}
     date_picked = dt.strptime(datePicked, "%Y-%m-%d")
     monthPicked = date_picked.month - 4
     dayPicked = date_picked.day - 1
@@ -303,7 +289,7 @@ def update_histogram(datePicked, selection):
     [xVal, yVal, colorVal] = get_selection(monthPicked, dayPicked, selection)
 
     model = load_model()
-    df_predict = predict(model)
+    df_predict = predict(model, sms=True)
     minima = min(df_predict['predictions'])
     maxima = max(df_predict['predictions'])
 
@@ -326,7 +312,7 @@ def update_histogram(datePicked, selection):
         dragmode="select",
         font=dict(color="white"),
         xaxis=dict(
-            range=[0.5, len(df_predict)-0.5],
+            range=[0.5, len(df_predict)+0.5],
             showgrid=False,
             nticks=len(df_predict),
             fixedrange=True,
@@ -356,7 +342,10 @@ def update_histogram(datePicked, selection):
 
     return go.Figure(
         data=[
-            go.Bar(x=df_predict['driver_id'], y=df_predict['predictions'], marker=dict(color=colors), hoverinfo="x"),
+            go.Bar(x=df_predict['driver_id'], y=df_predict['predictions'], marker=dict(color=colors),
+                     hovertext=df_predict['priority']
+    #               , hoverinfo="y"
+    ),
         ],
         layout=layout,
     )
@@ -385,9 +374,12 @@ def getLatLonColor(selectedData, month, day):
         Input("date-picker", "date"),
         Input("bar-selector", "value"),
         Input("location-dropdown", "value"),
+        Input("button", "n_clicks")
     ],
 )
-def update_graph(datePicked, selectedData, selectedLocation):
+def update_graph(datePicked, selectedData, selectedLocation, n_clicks):
+    if n_clicks is None:
+        return {}
     zoom = 13.0
     latInitial = 42.3601 #40.7272
     lonInitial = -71.0942 #-73.991251
@@ -414,7 +406,6 @@ def update_graph(datePicked, selectedData, selectedLocation):
     colors = []
     for v in df_predict['predictions']:
         color = matplotlib.colors.to_hex(mapper.to_rgba(v))
-        print(color)
         colors.append(color)
     sizes = list((10 + df_predict['predictions']*100).astype(int))
 
@@ -450,15 +441,6 @@ def update_graph(datePicked, selectedData, selectedLocation):
                         [0.5833, "#2BBCA4"],
                         [1.0, "#613099"],
                     ],
-                    colorbar=dict(
-                        title="Time of<br>Day",
-                        x=0.93,
-                        xpad=0,
-                        nticks=24,
-                        tickfont=dict(color="#d8d8d8"),
-                        titlefont=dict(color="#d8d8d8"),
-                        thicknessmode="pixels",
-                    ),
                 ),
             ),
             # Plot of important locations on the map

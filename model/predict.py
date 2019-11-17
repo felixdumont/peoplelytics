@@ -3,8 +3,9 @@ import numpy as np
 from preprocessing.preprocessing import generate_data
 import settings
 from model.alert import add_alerts
+from model.twilio import send_sms
 
-def predict(model_obj, input_df=None):
+def predict(model_obj, input_df=None, sms=False):
     if input_df is None:
         df = generate_data(train=False)
     else:
@@ -25,5 +26,10 @@ def predict(model_obj, input_df=None):
         predictions = np.exp(predictions)-1
     df['predictions'] = predictions
 
-    df['alert'] = add_alerts(df)
+    df = add_alerts(df)
+    if sms:
+        driver_alerts = set(df[df['alert'] == True]['driver_id'])
+        for driver in driver_alerts:
+            send_sms(driver)
+
     return df

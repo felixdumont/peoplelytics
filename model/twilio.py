@@ -10,6 +10,7 @@ def send_sms(driver):
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
-        to="+16174485001",
+        to="+18572858877",
         from_="+13343842820",
-        body="Hi Andy. You are entering a high risk zone. Please be careful.")
+        body="Hi Driver number {}. You are entering a high risk zone. Please be careful and lower your speed.".format(
+            driver))
