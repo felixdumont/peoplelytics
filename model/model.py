@@ -5,10 +5,11 @@ import xgboost as xgb
 
 
 class Model:
-    def __init__(self, model, scalerX, scalery):
+    def __init__(self, model, scalerX, scalery, log_ind=False):
         self.model = model
         self.scalerX = scalerX
         self.scalery = scalery
+        self.log_ind = log_ind
 
 def nn_model(num_neurons, input_dim):
     model = Sequential()

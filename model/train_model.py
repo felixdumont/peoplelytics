@@ -2,9 +2,6 @@ from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import cross_val_score, cross_validate
-from sklearn.model_selection import KFold
-from sklearn.pipeline import Pipeline
 import numpy as np
 import pickle
 

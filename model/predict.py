@@ -4,12 +4,17 @@ from preprocessing.preprocessing import generate_data
 import settings
 from alert import add_alerts
 
-def predict(model, scalerX, scalery, log_ind=False, input_df=None):
+def predict(model_obj, input_df=None):
     if input_df is None:
         df = generate_data(train=False)
     else:
         df = input_df
-        
+
+    model = model_obj.model
+    scalerX = model.scalerX
+    scalery = model.scalery
+    log_ind = model.log_ind
+
     x_cols = settings.DEP_VARS
 
     X = df[x_cols]

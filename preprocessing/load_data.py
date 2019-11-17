@@ -10,7 +10,12 @@ def load_trucks():
     return df
 
 def load_route_types():
-    pass
+    df = pd.read_csv('data/routes.csv')
+    return df
+
+def load_weather():
+    df = pd.read_csv('data/weather.csv')
+    return df
 
 def load_route_data():
     df = pd.read_csv('data/routes_data_2.csv')

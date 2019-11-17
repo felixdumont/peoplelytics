@@ -5,9 +5,9 @@ import settings
 def mock_incidents(df):
     overall_rates = settings.OVERALL_RATES
     env_rates = settings.ENVIRONMENT_IMPACT
-    death_risk = 1 + df['driver_death_add_risk'] + df['truck_death_add_risk']# + df['route_death_add_risk']
-    major_risk = 1 + df['driver_major_add_risk'] + df['truck_major_add_risk']# + df['route_death_add_risk']
-    minor_risk = 1 + df['driver_minor_add_risk'] + df['truck_minor_add_risk']# + df['route_death_add_risk']
+    death_risk = 1 + df['driver_death_add_risk'] + df['truck_death_add_risk'] + df['route_risk']
+    major_risk = 1 + df['driver_major_add_risk'] + df['truck_major_add_risk'] + df['route_risk']
+    minor_risk = 1 + df['driver_minor_add_risk'] + df['truck_minor_add_risk'] + df['route_risk']
 
     for env_var, env_rate in env_rates.items():
         for risk in [death_risk, major_risk, minor_risk]:
