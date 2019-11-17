@@ -3,40 +3,41 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 import numpy as np
+import matplotlib
+import matplotlib.cm as cm
 
 from dash.dependencies import Input, Output
 from plotly import graph_objs as go
 from plotly.graph_objs import *
 from datetime import datetime as dt
+from model.predict import predict
+from model.train_model import load_model
 
 
 app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}]
 )
 server = app.server
-
+app.config.suppress_callback_exceptions=True
 
 # Plotly mapbox public token
 mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNqdnBvNDMyaTAxYzkzeW5ubWdpZ2VjbmMifQ.TXcBE-xg9BFdV2ocecc_7g"
 
-# Dictionary of important locations in New York
+# Dictionary of important locations in Boston
+
 list_of_locations = {
-    "Madison Square Garden": {"lat": 40.7505, "lon": -73.9934},
-    "Yankee Stadium": {"lat": 40.8296, "lon": -73.9262},
-    "Empire State Building": {"lat": 40.7484, "lon": -73.9857},
-    "New York Stock Exchange": {"lat": 40.7069, "lon": -74.0113},
-    "JFK Airport": {"lat": 40.644987, "lon": -73.785607},
-    "Grand Central Station": {"lat": 40.7527, "lon": -73.9772},
-    "Times Square": {"lat": 40.7589, "lon": -73.9851},
-    "Columbia University": {"lat": 40.8075, "lon": -73.9626},
-    "United Nations HQ": {"lat": 40.7489, "lon": -73.9680},
+    "Boston University": {"lat":42.349634, "lon":-71.099688},
+    "MIT": {"lat": 42.3601, "lon": -71.0942},
+    "Harvard": {"lat": 42.377, "lon": -71.1167},
+    "Tufts": {"lat": 42.4075, "lon": -71.119},
+    "Faneuil Hall": {"lat": 42.3603, "lon": -71.0547}
 }
 
 # Initialize data frame
-df = pd.read_csv(
-    "https://raw.githubusercontent.com/plotly/datasets/master/uber-rides-data1.csv",
-    dtype=object,
-)
+#df = pd.read_csv(
+#    "https://raw.githubusercontent.com/plotly/datasets/master/uber-rides-data1.csv",
+#    dtype=object,
+#)
 #df2 = pd.read_csv(
 #    "https://raw.githubusercontent.com/plotly/datasets/master/uber-rides-data2.csv",
 #    dtype=object,
@@ -55,6 +56,7 @@ data = [["2014-04-01 00:11:00",40.769,-73.9549]
 ,["2014-05-02 00:33:00", 40.7594, -73.9722]]
 #df = pd.DataFrame(data=data, columns=["Date/Time","Lat","Lon"])
 
+df = pd.read_csv('temp_df.csv')
 df["Date/Time"] = pd.to_datetime(df["Date/Time"])
 df.index = df["Date/Time"]
 df.drop("Date/Time", 1, inplace=True)
@@ -63,11 +65,11 @@ totalList = []
 for month in df.groupby(df.index.month):
     dailyList = []
     for day in month[1].groupby(month[1].index.day):
-        print(day[1])
         dailyList.append(day[1])
     totalList.append(dailyList)
-print(totalList[0])
+
 totalList = np.array(totalList)
+
 
 # Layout of Dash App
 app.layout = html.Div(
@@ -79,10 +81,7 @@ app.layout = html.Div(
                 html.Div(
                     className="four columns div-user-controls",
                     children=[
-                        html.Img(
-                            className="logo", src=app.get_asset_url("dash-logo-new.png")
-                        ),
-                        html.H2("DASH - UBER DATA APP"),
+                        html.H2("BSAFE - DISPATCHER APP"),
                         html.P(
                             """Select different days using the date picker or by selecting 
                             different time frames on the histogram."""
@@ -138,14 +137,6 @@ app.layout = html.Div(
                                     ],
                                 ),
                             ],
-                        ),
-                        html.P(id="total-rides"),
-                        html.P(id="total-rides-selection"),
-                        html.P(id="date-value"),
-                        dcc.Markdown(
-                            children=[
-                                "Source: [FiveThirtyEight](https://github.com/fivethirtyeight/uber-tlc-foil-response/tree/master/uber-trip-data)"
-                            ]
                         ),
                     ],
                 ),
@@ -311,6 +302,19 @@ def update_histogram(datePicked, selection):
 
     [xVal, yVal, colorVal] = get_selection(monthPicked, dayPicked, selection)
 
+    model = load_model()
+    df_predict = predict(model)
+    minima = min(df_predict['predictions'])
+    maxima = max(df_predict['predictions'])
+
+    norm = matplotlib.colors.Normalize(vmin=minima, vmax=maxima, clip=True)
+    mapper = cm.ScalarMappable(norm=norm, cmap=cm.coolwarm)
+    colors = []
+    for v in df_predict['predictions']:
+        color = matplotlib.colors.to_hex(mapper.to_rgba(v))
+        print(color)
+        colors.append(color)
+
     layout = go.Layout(
         bargap=0.01,
         bargroupgap=0,
@@ -322,14 +326,14 @@ def update_histogram(datePicked, selection):
         dragmode="select",
         font=dict(color="white"),
         xaxis=dict(
-            range=[-0.5, 23.5],
+            range=[0.5, len(df_predict)-0.5],
             showgrid=False,
-            nticks=25,
+            nticks=len(df_predict),
             fixedrange=True,
-            ticksuffix=":00",
+            tickprefix='Driver #'
         ),
         yaxis=dict(
-            range=[0, max(yVal) + max(yVal) / 4],
+            range=[0, maxima],
             showticklabels=False,
             showgrid=False,
             fixedrange=True,
@@ -352,16 +356,7 @@ def update_histogram(datePicked, selection):
 
     return go.Figure(
         data=[
-            go.Bar(x=xVal, y=yVal, marker=dict(color=colorVal), hoverinfo="x"),
-            go.Scatter(
-                opacity=0,
-                x=xVal,
-                y=yVal / 2,
-                hoverinfo="none",
-                mode="markers",
-                marker=dict(color="rgb(66, 134, 244, 0)", symbol="square", size=40),
-                visible=True,
-            ),
+            go.Bar(x=df_predict['driver_id'], y=df_predict['predictions'], marker=dict(color=colors), hoverinfo="x"),
         ],
         layout=layout,
     )
@@ -393,9 +388,9 @@ def getLatLonColor(selectedData, month, day):
     ],
 )
 def update_graph(datePicked, selectedData, selectedLocation):
-    zoom = 12.0
-    latInitial = 40.7272
-    lonInitial = -73.991251
+    zoom = 13.0
+    latInitial = 42.3601 #40.7272
+    lonInitial = -71.0942 #-73.991251
     bearing = 0
 
     if selectedLocation:
@@ -407,6 +402,21 @@ def update_graph(datePicked, selectedData, selectedLocation):
     monthPicked = date_picked.month - 4
     dayPicked = date_picked.day - 1
     listCoords = getLatLonColor(selectedData, monthPicked, dayPicked)
+
+    model = load_model()
+    df_predict = predict(model)
+
+    minima = min(df_predict['predictions'])
+    maxima = max(df_predict['predictions'])
+
+    norm = matplotlib.colors.Normalize(vmin=minima, vmax=maxima, clip=True)
+    mapper = cm.ScalarMappable(norm=norm, cmap=cm.coolwarm)
+    colors = []
+    for v in df_predict['predictions']:
+        color = matplotlib.colors.to_hex(mapper.to_rgba(v))
+        print(color)
+        colors.append(color)
+    sizes = list((10 + df_predict['predictions']*100).astype(int))
 
     return go.Figure(
         data=[
@@ -452,13 +462,16 @@ def update_graph(datePicked, selectedData, selectedLocation):
                 ),
             ),
             # Plot of important locations on the map
+
             Scattermapbox(
                 lat=[list_of_locations[i]["lat"] for i in list_of_locations],
                 lon=[list_of_locations[i]["lon"] for i in list_of_locations],
                 mode="markers",
                 hoverinfo="text",
                 text=[i for i in list_of_locations],
-                marker=dict(size=8, color="#ffa0a0"),
+                marker=dict(size=sizes, color=colors
+
+                            ),
             ),
         ],
         layout=Layout(
