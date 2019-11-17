@@ -25,7 +25,7 @@ def generate_data(train=True):
     full_df = pd.merge(route_data, drivers, how='inner', on='driver_id')
     full_df = pd.merge(full_df, trucks, how='inner', on='truck_id')
     full_df = pd.merge(full_df, weather, how='inner', on='day')
-    full_df = pd.merge(route_data, route_types, how='inner', on='route_id')
+    full_df = pd.merge(full_df, route_types, how='inner', on='route_id')
 
     # Generate incidents
     if train:

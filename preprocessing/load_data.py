@@ -18,7 +18,7 @@ def load_weather():
     return df
 
 def load_route_data():
-    df = pd.read_csv('data/routes_data_2.csv')
+    df = pd.read_csv('data/routes_data_3.csv')
     return df
 
 def load_incident_weights():
