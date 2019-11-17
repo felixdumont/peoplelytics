@@ -1,5 +1,5 @@
 import pandas as pd
-
+import settings
 
 def load_drivers():
     df = pd.read_csv('data/drivers.csv')
@@ -15,6 +15,8 @@ def load_route_types():
 
 def load_weather():
     df = pd.read_csv('data/weather.csv')
+    df['snow'] = df['Weather'].str.lower().str.contains('snow').astype(int)
+    df['rain'] = df['Weather'].str.lower().str.contains('rain').astype(int)
     return df
 
 def load_route_data():

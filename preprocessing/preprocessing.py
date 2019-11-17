@@ -23,10 +23,13 @@ def generate_data(train=True):
         route_data = load_future_routes()
     full_df = route_data
     full_df = pd.merge(route_data, drivers, how='inner', on='driver_id')
+    print(len(full_df))
     full_df = pd.merge(full_df, trucks, how='inner', on='truck_id')
+    print(len(full_df))
     full_df = pd.merge(full_df, weather, how='inner', on='day')
+    print(len(full_df))
     full_df = pd.merge(full_df, route_types, how='inner', on='route_id')
-
+    print(len(full_df))
     # Generate incidents
     if train:
         full_df = mock_incidents(full_df)
