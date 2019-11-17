@@ -1,0 +1,2 @@
+stop_lon,stop_name,stop_lat,stop_id,location_type
+-71.082900,MIT Sloan,42.361000,0,0

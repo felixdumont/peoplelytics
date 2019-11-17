@@ -132,3 +132,6 @@ idea/
 .idea/*
 .idea/
 .idea
+
+truck-tracker/node_modules/
+truck-map/node_modules/

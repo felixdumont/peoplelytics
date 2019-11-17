@@ -1,0 +1,17 @@
+stop_lon,stop_name,stop_lat,stop_id,location_type
+-71.099688,BU,42.349634,11,0
+-71.1685,BC,42.3355,10,0
+-71.0942,MIT,42.3601,13,0
+-71.1167,Harvard,42.377,12,0
+-71.2179,Northeastern,42.3994,15,0
+-71.119,Tufts,42.4075,14,0
+-71.0656,Emerson,42.3522,1,0
+-71.0618,Suffolk University,42.3589,0,0
+-71.0895,Berklee College of Music,42.3466,3,0
+-71.0373,UMass Boston,42.3145,2,0
+-71.0972,Fenway,42.3467,5,0
+-71.0589,Boston Airport,42.3601,4,0
+-71.0621,Boston Gardens,42.3662,7,0
+-71.0639,Boston Commons,42.3555,6,0
+-71.0704,Boston Public Gardens,42.3542,9,0
+-71.0547,Faneuil Hall,42.3603,8,0

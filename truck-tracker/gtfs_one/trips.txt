@@ -1,0 +1,2 @@
+route_id,trip_id,trip_headsign,service_id
+0,0,To BU,1

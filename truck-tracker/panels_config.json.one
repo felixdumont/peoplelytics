@@ -1,0 +1,21 @@
+[
+  {
+    "panel": 0,
+    "routesGroups": [[0], []],
+    "markers": [
+      {
+        "lat": 42.361000,
+        "lng": -71.082900,
+        "iconPath": "/images/dashboard/placemarker_yellow.png",
+        "name": "MIT Sloan"
+      }
+    ],
+    "southWestLat": 42.261000,
+    "southWestLng": -71.182900,
+    "northEastLat": 42.461000,
+    "northEastLng": -71.002900
+  }
+
+  
+  
+]
