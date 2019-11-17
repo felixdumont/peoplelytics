@@ -3,6 +3,13 @@ from keras.models import Sequential
 from keras.layers import Dense
 import xgboost as xgb
 
+
+class Model:
+    def __init__(self, model, scalerX, scalery):
+        self.model = model
+        self.scalerX = scalerX
+        self.scalery = scalery
+
 def nn_model(num_neurons, input_dim):
     model = Sequential()
     model.add(Dense(num_neurons, input_dim=input_dim, kernel_initializer='normal', activation='relu'))

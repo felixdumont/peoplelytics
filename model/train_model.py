@@ -9,8 +9,8 @@ import numpy as np
 import pickle
 
 import settings
-from preprocessing.preprocessing import generate_train_data
-from model.model import nn_model, xgb_model
+from preprocessing.preprocessing import generate_data
+from model.model import Model, nn_model, xgb_model
 
 
 def split_datasets(df, log_ind=False):
@@ -71,8 +71,15 @@ def train_model(model='XGB'):
     grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1, cv=3, scoring='neg_mean_squared_error')
     grid_result = grid.fit(X_train_scaled, y_train_scaled)
     evaluate_grid(grid_result)
+    new_estimator = grid.best_estimator_
+    new_estimator.fit(X_train_scaled, y_train_scaled)
+    final_model = Model(new_estimator, scalerX, scalery)
+    save_model(final_model)
     return grid, X_train_scaled, y_train_scaled, X_test_scaled, scalery, X_test, y_test, X_train, y_train
 
 
-def save_model(model, model_name = 'model.sav'):
-    pickle.dump(model, open(model_name, 'wb'))
+def save_model(model, model_path = 'data/model.sav'):
+    pickle.dump(model, open(model_path, 'wb'))
+
+def load_model(model_path = 'data/model.sav'):
+    return pickle.load(open(model_path, 'rb'))
