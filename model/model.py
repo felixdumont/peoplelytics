@@ -2,6 +2,7 @@ import pandas as pd
 from keras.models import Sequential
 from keras.layers import Dense
 import xgboost as xgb
+from sklearn.ensemble import RandomForestRegressor
 
 
 class Model:
@@ -22,3 +23,7 @@ def nn_model(num_neurons, input_dim):
 def xgb_model():
     xgb_model = xgb.XGBRegressor()
     return xgb_model
+
+def rf_model():
+    rf_model = RandomForestRegressor()
+    return rf_model

@@ -11,6 +11,8 @@ def load_trucks():
 
 def load_route_types():
     df = pd.read_csv('data/routes.csv')
+    for i in range(1, 6):
+        df['route_{}'.format(i)] = (df['route_id'] == i).astype(int)
     return df
 
 def load_weather():

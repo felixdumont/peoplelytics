@@ -7,7 +7,7 @@ import pickle
 
 import settings
 from preprocessing.preprocessing import generate_data
-from model.model import Model, nn_model, xgb_model
+from model.model import Model, nn_model, xgb_model, rf_model
 
 
 def split_datasets(df, log_ind=False):
@@ -44,7 +44,7 @@ def evaluate_grid(grid_result):
         print("%f (%f) with: %r" % (mean, stdev, param))
 
 
-def train_model(model='XGB'):
+def train_model(model='NN'):
     df = generate_data(train=True)
     X_train_scaled, y_train_scaled, X_test_scaled, y_test_scaled, scalerX, scalery, X_test, y_test, X_train, y_train = split_datasets(df)
 
@@ -52,7 +52,7 @@ def train_model(model='XGB'):
         batch_size = [5, 10]
         epochs = [10, 100]
         num_neurons = [2, 5]
-        input_dim = [2]
+        input_dim = [len(settings.DEP_VARS)]
         param_grid = dict(  # batch_size=batch_size,
             epochs=epochs,
             input_dim=input_dim,
@@ -61,11 +61,17 @@ def train_model(model='XGB'):
         model = KerasRegressor(build_fn=nn_model, verbose=0)
 
     if model == 'XGB':
-        param_grid = dict(learning_rate=[0.001, 0.01, 0.2],
+        param_grid = dict(learning_rate=[0.001, 0.01, 0.2, 0.4],
                           n_estimators=[10, 25, 100, 200])
         model = xgb_model()
 
-    grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1, cv=3, scoring='neg_mean_squared_error')
+    if model == 'RF':
+        param_grid = dict(max_depth=[2,5,10],
+                          n_estimators=[100, 200, 1000])
+        model = rf_model()
+
+
+    grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1, cv=5, scoring='neg_mean_squared_error')
     grid_result = grid.fit(X_train_scaled, y_train_scaled)
     evaluate_grid(grid_result)
     new_estimator = grid.best_estimator_
