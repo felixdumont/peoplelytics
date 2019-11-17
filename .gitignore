@@ -135,3 +135,5 @@ idea/
 
 truck-tracker/node_modules/
 truck-map/node_modules/
+
+private_settings.py

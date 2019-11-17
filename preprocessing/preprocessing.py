@@ -21,7 +21,7 @@ def generate_data(train=True):
         route_data = load_route_data()
     else:
         route_data = load_future_routes()
-
+    print(route_data)
     full_df = pd.merge(route_data, drivers, how='inner', on='driver_id')
     full_df = pd.merge(full_df, trucks, how='inner', on='truck_id')
     full_df = pd.merge(full_df, weather, how='inner', on='day')

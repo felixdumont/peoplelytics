@@ -25,8 +25,7 @@ def load_route_data():
     df = pd.read_csv('data/routes_data.csv')
     return df
 
-def load_incident_weights():
-    pass
 
 def load_future_routes():
-    pass
+    df = pd.read_csv('data/new_routes_data.csv')
+    return df

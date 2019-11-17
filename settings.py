@@ -12,4 +12,4 @@ HARM_COSTS = {'Death':100, 'Major Incident':10, 'Minor Incident':1}
 OVERALL_RATES = {'Death':0.0001, 'Major Incident':0.001, 'Minor Incident':0.02}
 ENVIRONMENT_IMPACT = {'snow':5, 'rain':3, 'Congestion':3}
 
-THRESHOLD = 0.05
+THRESHOLD = 0.1

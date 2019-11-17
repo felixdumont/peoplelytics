@@ -44,7 +44,7 @@ def evaluate_grid(grid_result):
         print("%f (%f) with: %r" % (mean, stdev, param))
 
 
-def train_model(model='NN'):
+def train_model(model='XGB'):
     df = generate_data(train=True)
     X_train_scaled, y_train_scaled, X_test_scaled, y_test_scaled, scalerX, scalery, X_test, y_test, X_train, y_train = split_datasets(df)
 
@@ -78,7 +78,8 @@ def train_model(model='NN'):
     new_estimator.fit(X_train_scaled, y_train_scaled)
     final_model = Model(new_estimator, scalerX, scalery)
     save_model(final_model)
-    return grid, X_train_scaled, y_train_scaled, X_test_scaled, scalery, X_test, y_test, X_train, y_train
+    return final_model
+    #return grid, X_train_scaled, y_train_scaled, X_test_scaled, scalery, X_test, y_test, X_train, y_train
 
 
 def save_model(model, model_path = 'data/model.sav'):

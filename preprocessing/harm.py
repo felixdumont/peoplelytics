@@ -1,4 +1,3 @@
-import pandas as pd
 import settings
 
 def get_route_harm(df_row, harm_costs=settings.HARM_COSTS):
