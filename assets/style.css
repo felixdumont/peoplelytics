@@ -4,7 +4,7 @@
 
 /* Main Layout ––––––––––––––––––––––––––––––––––––––––––––––––––*/
 body {
-  background-color: #3e4366;
+  background-color: #1E1E1E;
   color: #d8d8d8;
   margin: 0;
   padding: 0;
@@ -66,7 +66,7 @@ a {
   margin-left: 8px;
 }
 .Select-control, .Select-menu-outer, .Select-multi-value-wrapper, .select-up, .is-open .Select-control {
-  background-color: #3e4366;
+  background-color: #1E1E1E;
   color: white;
 
 }
@@ -97,7 +97,7 @@ a {
 
 
 #date {
-  background-color: #3e4366;
+  background-color: #1E1E1E;
   font-family: "Open Sans";
   font-weight: 400;
   color: #dbdbdb;
@@ -119,14 +119,14 @@ a {
 }
 
 .DateInput.DateInput_1 {
-  background-color: #3e4366;
+  background-color: #1E1E1E;
 }
 
 .SingleDatePickerInput__withBorder {
   border-radius: 3px;
   color: #dbdbdb;
-  background: #3e4366;
-  background-color: #3e4366;
+  background: #1E1E1E;
+  background-color: #1E1E1E;
 }
 .SingleDatePickerInput.SingleDatePickerInput_1.SingleDatePickerInput__withBorder.SingleDatePickerInput__withBorder_2 {
   border: 0.0px solid #dbdbdb;
