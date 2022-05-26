@@ -27,7 +27,7 @@ scipy==1.1.0
 seaborn==0.9.0
 statsmodels==0.9.0
 tensorboard==2.0.1
-tensorflow==2.0.0
+tensorflow==2.7.2
 tensorflow-estimator==2.0.1
 twilio==6.33.1
 xgboost==0.90
